@@ -4,8 +4,6 @@
 #include "Functions.h"
 
 int main() {
-	if (provjeraPostojanja() == 0) {
 	
-	}
 	meni();
 }

@@ -27,12 +27,12 @@ void meni() {
 	} while (n != 0);
 }
 	
-int provjeraPostojanja() {
+int provjeraPostojanja(char imeDatoteke[101]) {
 	FILE* fp = NULL;
-	fp = fopen("kategorije.txt","r");
+	fp = fopen(imeDatoteke,"r");
 	if (fp == NULL && errno == 2)
 	{
-		fp = fopen("kategorije.txt", "w");
+		fp = fopen(imeDatoteke, "w");
 		//printf("Datoteka uspjesno kreirana!");
 	}
 
@@ -49,6 +49,8 @@ void unos() {
 	getchar();
 	scanf("%100[^\n]", imeDatoteke);
 
+	provjeraPostojanja(imeDatoteke);
+
 	fp = fopen(imeDatoteke, "w");
 	if (fp == NULL)
 		printf("Datoteka ne postoji!");
@@ -60,6 +62,5 @@ void unos() {
 		printf("Uspjesno uneseno u datoteku. \n");
 
 	fclose(fp);
-
 
 }

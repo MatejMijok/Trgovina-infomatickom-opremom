@@ -2,6 +2,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 void meni();
-int provjeraPostojanja();
+int provjeraPostojanja(char imeDatoteke[]);
 void unos();
 #endif
