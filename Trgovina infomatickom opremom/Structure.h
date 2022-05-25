@@ -7,4 +7,4 @@ typedef struct artikli {
 	
 }ARTIKL;
 
-#endif
+#endif // STRUCTURE_H
