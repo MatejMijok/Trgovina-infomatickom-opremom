@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Functions.h"
-
+#include "Structure.h"
 
 void meni() {
 	int n = 0;
@@ -19,7 +19,7 @@ void meni() {
 	
 
 	switch (n) {
-	case 1: unos();
+	case 1: unosNoveKategorije();
 			break;
 	}
 	//return 0;
@@ -64,3 +64,29 @@ void unos() {
 	fclose(fp);
 
 }
+
+int unosNovogArtikla() {
+	FILE* fp = NULL;
+	ARTIKL *noviArtikl;
+	noviArtikl = (ARTIKL*)calloc(1, sizeof(ARTIKL));
+	if (noviArtikl == NULL)
+		printf("Pogreska pri zauzimanju memorije! ");
+
+	char imeDatoteke[15] = "kategorije.txt" , sadrzaj[101];
+	provjeraPostojanja(imeDatoteke);
+
+	fp = fopen(imeDatoteke, "a+");
+	if (fp == NULL)
+		printf("Datoteka ne postoji");
+	getchar();
+	printf("Unesite zeljeno ime kategorije: ");
+	scanf("%100[^\n]", noviArtikl->imeKategorije);
+	printf("Unesite : ");
+
+	if (fprintf(fp, "%s ", sadrzaj) == 0)
+		printf("Uspjesno upisano u datoteku! ");
+	fclose(fp);
+	free(noviArtikl);
+	noviArtikl = NULL;
+}
+

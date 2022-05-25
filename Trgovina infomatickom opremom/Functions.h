@@ -4,4 +4,5 @@
 void meni();
 int provjeraPostojanja(char imeDatoteke[]);
 void unos();
+int unosNovogArtikla();
 #endif
