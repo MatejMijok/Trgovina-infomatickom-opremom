@@ -3,6 +3,8 @@
 #define STRUCTURE_H
 
 typedef struct artikli {
+	int id;
+	char imeArtikla[101];
 	char imeKategorije[101];
 	char vrijednostPrveSpecifikacije[101];
 	char vrijednostDrugeSpecifikacije[101];
