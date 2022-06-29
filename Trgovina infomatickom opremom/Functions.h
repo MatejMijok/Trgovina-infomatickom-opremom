@@ -8,7 +8,7 @@ void kreiranjeDatoteke();
 int unosNovogArtikla();
 int unosKategorije();
 void* ucitavanjeArtikala();
-void ispisivanjeArtikala(const ARTIKL* const);
+void ispisivanjeArtikala(const ARTIKL* const, const KATEGORIJE* const);
 void* ucitavanjeKategorija();
 void ispisivanjeKategorija(const KATEGORIJE* const);
 #endif
