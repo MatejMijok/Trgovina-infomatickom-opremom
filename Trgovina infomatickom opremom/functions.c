@@ -12,7 +12,9 @@ void meni() {
 	int n = 0;
 	static ARTIKL* poljeArtikala = NULL;
 	static KATEGORIJE* poljeKategorija = NULL;
+	
 
+	FILE* fp = NULL;
 	do {
 	printf("\n1. Unos novog artikla\n");
 	printf("2. Kreiranje kategorije i specifikacija za uredaj\n");
@@ -33,17 +35,43 @@ void meni() {
 			break;
 
 	case 3: 
+		fp = fopen("artikli.bin", "rb");
+		if (fp == NULL && errno == 2)
+		{
+			perror("Dodavanje artikla u datoteku artikli.bin");
+			printf("Kreiranje datoteke artikli.bin\n");
+			//exit(EXIT_FAILURE);
+			kreiranjeDatoteke("artikli.bin");
+			//fp = fopen("artikli.bin", "rb+");
+		}
+
+		fp = fopen("kategorije.bin", "rb");
+
+		if (fp == NULL && errno == 2)
+		{
+			perror("Dodavanje artikla u datoteku kategorije.bin");
+			printf("Kreiranje datoteke artikli.bin\n");
+			//exit(EXIT_FAILURE);
+			kreiranjeDatoteke("kategorije.bin");
+			//fp = fopen("kategorije.bin", "rb+");
+		}
+
 		if (poljeArtikala != NULL) {
 			free(poljeArtikala);
 			poljeArtikala = NULL;
 		}
+
 		poljeArtikala = (ARTIKL*)ucitavanjeArtikala();
+
 		if (poljeArtikala == NULL)
 			exit(EXIT_FAILURE);
+		
+
 		if (poljeKategorija != NULL) {
 			free(poljeKategorija);
 			poljeKategorija = NULL;
 		}
+
 		poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
 		if (poljeKategorija == NULL)
 			exit(EXIT_FAILURE);
@@ -60,11 +88,18 @@ void meni() {
 			  exit(EXIT_FAILURE);
 		  ispisivanjeKategorija(poljeKategorija);
 		  break;
+	case 5: 
+		  break;
+
 	}
 
-	//return 0;
+	
 
 	} while (n != 0);
+
+	fp = NULL;
+
+	//return 0;
 }
 	
 void kreiranjeDatoteke(char imeDatoteke[101]) {
@@ -82,58 +117,44 @@ void kreiranjeDatoteke(char imeDatoteke[101]) {
 }
 
 int unosNovogArtikla() {
-	FILE* fp = NULL;
-	//FILE* fp2 = NULL;
+	FILE* fp1 = NULL, *fp2 = NULL;
 	ARTIKL noviArtikl = { 0 };
 	KATEGORIJE* poljeKategorija = NULL;
 	int odabir = 0;
 
-	fp = fopen("artikli.bin", "rb+");
-	if (fp == NULL && errno == 2)
+	fp1 = fopen("artikli.bin", "rb+");
+	if (fp1 == NULL && errno == 2)
 	{
 		perror("Dodavanje artikla u datoteku artikli.bin");
 		printf("Kreiranje datoteke artikli.bin\n");
 		//exit(EXIT_FAILURE);
 		kreiranjeDatoteke("artikli.bin");
-		fp = fopen("artikli.bin", "rb+");
+		fp1 = fopen("artikli.bin", "rb+");
 	}
-	fread(&brojArtikala, sizeof(int), 1, fp);
-	fclose(fp);
-
-	fp = fopen("kategorije.bin", "rb+");
-	if (fp == NULL && errno == 2)
+	fread(&brojArtikala, sizeof(int), 1, fp1);
+	//fclose(fp);
+	
+	fp2 = fopen("kategorije.bin", "rb+");
+	if (fp2 == NULL && errno == 2)
 	{
 		perror("Dodavanje artikla u datoteku kategorije.bin");
 		printf("Kreiranje datoteke kategorije.bin\n");
 		//exit(EXIT_FAILURE);
 		kreiranjeDatoteke("kategorije.bin");
-		fp = fopen("kategorije.bin", "rb+");
+		fp2 = fopen("kategorije.bin", "rb+");
 	}
-	fread(&brojKategorija, sizeof(int), 1, fp);
-	fclose(fp);
+	fread(&brojKategorija, sizeof(int), 1, fp2);
+	//fclose(fp2);
 
-	fp = fopen("artikli.bin", "rb+");
-	if (fp == NULL && errno == 2)
-	{
-		perror("Dodavanje artikla u datoteku artikli.bin");
-		printf("Kreiranje datoteke artikli.bin\n");
-		//exit(EXIT_FAILURE);
-		kreiranjeDatoteke("artikli.bin");
-		fp = fopen("artikli.bin", "rb+");
-	}
-
+	
+	
 	if (poljeKategorija != NULL) {
 		free(poljeKategorija);
 		poljeKategorija = NULL;
 	}
 	poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
 
-	printf("\nBroj artikala %d\n", brojArtikala);
-	noviArtikl.id = brojArtikala;
-	printf("Unesite ime artikla: ");
-	getchar();
-	fgets(noviArtikl.imeArtikla, 100, stdin);
-
+	
 	printf("Odaberite kategoriju koju zelite: ");
 
 	if (poljeKategorija == NULL)
@@ -144,37 +165,66 @@ int unosNovogArtikla() {
 	poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
 	for (int i = 0; i < brojKategorija; i++)
 	{
-		printf("%d. %s\n",  i + 1, (poljeKategorija + i)->imeKategorije);
+		printf("%d. %s, ID: %d\n",  i + 1, (poljeKategorija + i)->imeKategorije, (poljeKategorija + i)->id);
 	}
 	printf("%d. Dodavanje nove kategorije.", brojKategorija + 1);
 	printf("\nVas unos: ");
 	scanf("%d", &odabir);
+
 	if (odabir == brojKategorija + 1) {
 		unosKategorije();
+
+		if (poljeKategorija != NULL) {
+			free(poljeKategorija);
+			poljeKategorija = NULL;
+		}
+
 		poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
-		odabir++;
+		if (poljeKategorija == NULL)
+			exit(EXIT_FAILURE);
 	}
+
+	printf("\nBroj artikala %d\n", brojArtikala);
+	noviArtikl.id = brojArtikala;
+	printf("Unesite ime artikla: ");
+	getchar();
+	fgets(noviArtikl.imeArtikla, 100, stdin);
+
 
 	printf("Unesite cijenu artikla: ");
 	scanf("%f", &noviArtikl.cijena);
 	printf("Unesite kolicinu artikla: ");
 	scanf("%d", &noviArtikl.kolicina);
-	printf("Unesite vrijednost za %s ", (poljeKategorija->imePrveSpecifikacije + (odabir - 1)));
+	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imePrveSpecifikacije));
+	getchar();
 	fgets(noviArtikl.vrijednostPrveSpecifikacije, 100, stdin);
-	printf("Unesite vrijednost za %s ", (poljeKategorija->imeDrugeSpecifikacije + (odabir - 1)));
+	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeDrugeSpecifikacije));
+	//getchar();
 	fgets(noviArtikl.vrijednostDrugeSpecifikacije, 100, stdin);
-	printf("Unesite vrijednost za %s ", (poljeKategorija->imeTreceSpecifikacije+ (odabir - 1)));
+	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeTreceSpecifikacije));
+	//getchar();
 	fgets(noviArtikl.vrijednostTreceSpecifikacije, 100, stdin);
-	printf("Unesite vrijednost za %s ", (poljeKategorija->imeCetvrteSpecifikacije + (odabir - 1)));
+	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeCetvrteSpecifikacije));
+	//getchar();
 	fgets(noviArtikl.vrijednostCetvrteSpecifikacije, 100, stdin);
+	noviArtikl.brojKategorije = (odabir - 1);
+	
+	printf("%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
+		0, ((noviArtikl).imeArtikla), (noviArtikl).cijena
+		, (noviArtikl).kolicina, (poljeKategorija + (odabir - 1))->imeKategorije
+		, (poljeKategorija + (odabir - 1))->imePrveSpecifikacije, (noviArtikl).vrijednostPrveSpecifikacije
+		, (poljeKategorija + (odabir - 1))->imeDrugeSpecifikacije, (noviArtikl).vrijednostDrugeSpecifikacije
+		, (poljeKategorija + (odabir - 1))->imeTreceSpecifikacije, (noviArtikl).vrijednostTreceSpecifikacije
+		, (poljeKategorija + (odabir - 1))->imeCetvrteSpecifikacije, (noviArtikl).vrijednostCetvrteSpecifikacije);
 
-	fseek(fp, sizeof(ARTIKL) * brojArtikala, SEEK_CUR);
-	fwrite(&noviArtikl, sizeof(ARTIKL), 1, fp);
-	rewind(fp);
+
+	fseek(fp1, sizeof(ARTIKL) * brojArtikala, SEEK_CUR);
+	fwrite(&noviArtikl, sizeof(ARTIKL), 1, fp1);
+	rewind(fp1);
 	brojArtikala++;
-	fwrite(&brojArtikala, sizeof(int), 1, fp);
-	fclose(fp);
-	fclose(fp);
+	fwrite(&brojArtikala, sizeof(int), 1, fp1);
+	fclose(fp1);
+	fclose(fp2);
 	return 0;
 }
 
@@ -199,7 +249,6 @@ int unosKategorije() {
 	printf("Unesite ime prve specifikacije: ");
 	//getchar();
 	fgets(kategorija.imePrveSpecifikacije, 100, stdin);
-	
 	printf("Unesite ime druge specifikacije: ");
 	//getchar();
 	fgets(kategorija.imeDrugeSpecifikacije, 100, stdin);
@@ -228,22 +277,52 @@ void* ucitavanjeArtikala() {
 	{
 		perror("Ucitavanje podataka iz datoteke artikli.bin");
 		//exit(EXIT_FAILURE);
-		fclose(fp);
+		//fclose(fp);
 		kreiranjeDatoteke("artikli.bin");
 		fp = fopen("artikli.bin", "rb+");
 	}
+
 	fread(&brojArtikala, sizeof(int), 1, fp);
 	printf("Broj artikala: %d\n", brojArtikala);
+
 	ARTIKL* poljeArtikala = (ARTIKL*)calloc(brojArtikala, sizeof(ARTIKL));
 
-	if(poljeArtikala == NULL)
+	if (poljeArtikala == NULL)
 	{
 		perror("Zauzimanje memorije za artikle");
 		exit(EXIT_FAILURE);
 	}
-	fread(poljeArtikala, sizeof(ARTIKL), brojArtikala, fp);
+
+	fread(poljeArtikala, sizeof(ARTIKL), 1, fp);
 
 	return poljeArtikala;
+}
+
+void* ucitavanjeKategorija() {
+	FILE* fp = fopen("kategorije.bin", "rb");
+	if (fp == NULL && errno == 2)
+	{
+		perror("Ucitavanje podataka iz datoteke kategorije.bin");
+		//exit(EXIT_FAILURE);
+		fclose(fp);
+		kreiranjeDatoteke("kategorije.bin");
+		fp = fopen("kategorije.bin", "rb+");
+	}
+
+	fread(&brojKategorija, sizeof(int), 1, fp);
+	printf("Broj kategorija: %d\n", brojKategorija);
+
+	KATEGORIJE* poljeKategorija = (KATEGORIJE*)calloc(brojKategorija, sizeof(KATEGORIJE));
+
+	if (poljeKategorija == NULL)
+	{
+		perror("Zauzimanje memorije za kategorije");
+		exit(EXIT_FAILURE);
+	}
+
+	fread(poljeKategorija, sizeof(KATEGORIJE), brojKategorija, fp);
+
+	return poljeKategorija;
 }
 
 void ispisivanjeArtikala(const ARTIKL* const poljeArtikala, const KATEGORIJE* const poljeKategorija) {
@@ -253,43 +332,26 @@ void ispisivanjeArtikala(const ARTIKL* const poljeArtikala, const KATEGORIJE* co
 	if (poljeKategorija == NULL) {
 		printf("Polje kategorija je prazno! \n");
 	}
+
 	for (int i = 0; i < brojArtikala; i++)
 	{
-		for(int j = 0; j<brojKategorija; j++)
-			printf("%d. artikl: %s, cijena: %0.2f, kolicina: %d, kategorija: %s, %s: %s, %s: %s, %s: %s, %s: %s \n",
-			i+1, (poljeArtikala + i)->imeArtikla,
-			(poljeArtikala + i)->cijena, (poljeArtikala + i)->kolicina, (poljeKategorija + j)->imeKategorije, 
-			(poljeKategorija + j)->imePrveSpecifikacije, (poljeArtikala + i)->vrijednostPrveSpecifikacije,
-			(poljeKategorija + j)->imeDrugeSpecifikacije, (poljeArtikala + i)->vrijednostDrugeSpecifikacije,
-			(poljeKategorija + j)->imeTreceSpecifikacije, (poljeArtikala + i)->vrijednostTreceSpecifikacije,
-			(poljeKategorija + j)->imeCetvrteSpecifikacije, (poljeArtikala + i)->vrijednostCetvrteSpecifikacije);
-	}
+		for(int j = 0; j<brojKategorija; j++) {
+		//if(((poljeArtikala + i)->brojKategorije) == ((poljeKategorija + j)->id)){
+		printf("%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
+				i+1, ((poljeArtikala + i)->imeArtikla), (poljeArtikala + i)->cijena
+				,(poljeArtikala + i)->kolicina, (poljeKategorija + j)->imeKategorije
+				,(poljeKategorija + j)->imePrveSpecifikacije, (poljeArtikala + i)->vrijednostPrveSpecifikacije
+				,(poljeKategorija + j)->imeDrugeSpecifikacije, (poljeArtikala + i)->vrijednostDrugeSpecifikacije
+				,(poljeKategorija + j)->imeTreceSpecifikacije, (poljeArtikala + i)->vrijednostTreceSpecifikacije
+				,(poljeKategorija + j)->imeCetvrteSpecifikacije, (poljeArtikala + i)->vrijednostCetvrteSpecifikacije);
+				}
+			}
+		}
+	//}
 
-}
 
-void* ucitavanjeKategorija() {
-	FILE* fp = fopen("kategorije.bin", "rb");
-	if (fp == NULL && errno == 2)
-	{
-		perror("Ucitavanje podataka iz datoteke artikli.bin");
-		//exit(EXIT_FAILURE);
-		fclose(fp);
-		kreiranjeDatoteke("kategorije.bin");
-		fp = fopen("kategorije.bin", "rb+");
-	}
-	fread(&brojKategorija, sizeof(int), 1, fp);
-	printf("\nBroj kategorija: %d\n", brojKategorija);
-	KATEGORIJE* poljeKategorija = (KATEGORIJE*)calloc(brojKategorija, sizeof(KATEGORIJE));
 
-	if (poljeKategorija == NULL)
-	{
-		perror("Zauzimanje memorije za kategorije");
-		exit(EXIT_FAILURE);
-	}
-	fread(poljeKategorija, sizeof(KATEGORIJE), brojKategorija, fp);
 
-	return poljeKategorija;
-}
 
 void ispisivanjeKategorija(const KATEGORIJE* const poljeKategorija) {
 	if (poljeKategorija == NULL) {
@@ -298,8 +360,8 @@ void ispisivanjeKategorija(const KATEGORIJE* const poljeKategorija) {
 	}
 	for (int i = 0; i < brojKategorija; i++)
 	{
-		printf("Ime %d. kategorije je %s, dodijeljene specifikacije kategorije su: \t%s, \t%s, \t%s, \t%s \n",
-			i + 1, (poljeKategorija + i)->imeKategorije, (poljeKategorija + i)->imePrveSpecifikacije,
+		printf("ID: %d. Ime %d. kategorije je %s, dodijeljene specifikacije kategorije su: \t%s, \t%s, \t%s, \t%s \n",
+			(poljeKategorija + i)->id, i + 1, (poljeKategorija + i)->imeKategorije, (poljeKategorija + i)->imePrveSpecifikacije,
 			(poljeKategorija + i)->imeDrugeSpecifikacije, (poljeKategorija + i)->imeTreceSpecifikacije,
 			(poljeKategorija + i)->imeCetvrteSpecifikacije);
 	}

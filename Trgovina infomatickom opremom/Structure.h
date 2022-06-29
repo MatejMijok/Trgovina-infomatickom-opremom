@@ -5,13 +5,13 @@
 typedef struct artikli {
 	int id;
 	char imeArtikla[101];
-	char imeKategorije[101];
 	char vrijednostPrveSpecifikacije[101];
 	char vrijednostDrugeSpecifikacije[101];
 	char vrijednostTreceSpecifikacije[101];
 	char vrijednostCetvrteSpecifikacije[101];
 	float cijena;
 	int kolicina;
+	int brojKategorije;
 }ARTIKL;
 
 typedef struct kategorija {
