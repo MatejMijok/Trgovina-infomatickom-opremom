@@ -14,4 +14,14 @@ typedef struct artikli {
 	int kolicina;
 }ARTIKL;
 
+typedef struct kategorija {
+	int id;
+	char imeKategorije[101];
+	char imePrveSpecifikacije[101];
+	char imeDrugeSpecifikacije[101];
+	char imeTreceSpecifikacije[101];
+	char imeCetvrteSpecifikacije[101];
+
+}KATEGORIJE;
+
 #endif // STRUCTURE_H
