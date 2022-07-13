@@ -29,7 +29,7 @@ void meni() {
 	do {
 		printf("Unesite broj zeljene radnje programa: ");
 		scanf("%d", &n);
-	}while (n < 0 || n>6);
+	}while (n < 0 || n>7);
 	
 
 	switch (n) {
@@ -93,6 +93,7 @@ void meni() {
 			  exit(EXIT_FAILURE);
 		  ispisivanjeKategorija(poljeKategorija);
 		  break;
+
 	case 5: 
 
 		if (poljeArtikala != NULL) {
@@ -114,8 +115,17 @@ void meni() {
 		if (poljeKategorija == NULL)
 			exit(EXIT_FAILURE);
 
+		if (pronadeniArtikli != NULL) {
+			free(pronadeniArtikli);
+			pronadeniArtikli = NULL;
+			brojacPronadenihArtikala = 0;
+		}
+
 		pronadeniArtikli = (ARTIKL*)pretrazivanjeArtikala(poljeArtikala, poljeKategorija);
-	
+
+		if (pronadeniArtikli == NULL)
+			exit(EXIT_FAILURE);
+
 		for (int i = 0; i < brojacPronadenihArtikala; i++) {
 			for (int j = 0; j < brojKategorija; j++) {
 			if (((pronadeniArtikli + i)->brojKategorije) == ((poljeKategorija + j)->id)) {
@@ -133,17 +143,40 @@ void meni() {
 	case 6: 
 		brisanjeArtikala(pronadeniArtikli, poljeArtikala);
 		break;
+	case 7: 
+			if (poljeArtikala != NULL) {
+			free(poljeArtikala);
+			poljeArtikala = NULL;
+			}
+
+			poljeArtikala = (ARTIKL*)ucitavanjeArtikala();
+
+			if (poljeArtikala == NULL)
+			exit(EXIT_FAILURE);
+
+
+			if (poljeKategorija != NULL) {
+			free(poljeKategorija);
+			poljeKategorija = NULL;
+			}
+			poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
+			if (poljeKategorija == NULL)
+				exit(EXIT_FAILURE);
+		azuriranjeArtikla(pronadeniArtikli, poljeArtikala, poljeKategorija);
+		break;
 
 	}
 
 	} while (n != 0);
-	free(poljeArtikala);
-	free(poljeKategorija);
-	free(pronadeniArtikli);
-	fclose(fp);
+	//free(poljeArtikala);
+	//free(poljeKategorija);
+	//free(pronadeniArtikli);
+	if(fp)
+		fclose(fp);
+
 	fp = NULL;
 
-	return 0;
+	//return 0;
 }
 	
 void kreiranjeDatoteke(char imeDatoteke[101]) {
@@ -420,6 +453,8 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala, KATEGORIJE* const polje
 		return NULL;
 	}
 
+
+
 	char trazeniPodatak[101] = {'\0'};
 	int trazeniID = 0;
 	int trazenaKategorija = 0;
@@ -595,9 +630,11 @@ void brisanjeArtikala(ARTIKL** const trazeniArtikl, const ARTIKL* const poljeArt
 	*trazeniArtikl = NULL;
 }
 
-void azuriranjeArtikla(ARTIKL** const trazeniArtikl, const ARTIKL* const poljeArtikala, KATEGORIJE* const poljeKategorija) {
+void azuriranjeArtikla(ARTIKL** const trazeniArtikl, ARTIKL* poljeArtikala, KATEGORIJE* const poljeKategorija) {
 	ARTIKL* azuriraniArtikl = NULL;
 	int odabir = 0;
+	char novaVrijednost[101] = { '\0' };
+
 	if (trazeniArtikl == NULL)
 	{
 		printf("Polje artikala je prazno! Ako zelite azurirati artikl odaberite ga pomocu opcije za pretrazivanje koristenjem ID-ja!");
@@ -625,15 +662,18 @@ void azuriranjeArtikla(ARTIKL** const trazeniArtikl, const ARTIKL* const poljeAr
 	} while (odabir < 1 || odabir > 6);
 	
 
-
-	for (int i = 0; i < brojArtikala; i++) {
-		if (trazeniArtikl[0] == (poljeArtikala + i)) {
+	if (odabir == 1) {
+		for (int i = 0; i < brojArtikala; i++) {
+			if (trazeniArtikl[0]->id == (poljeArtikala + i)->id) {
+				printf("Unesite novu vrijednost koju zelite promijeniti: ");
+				getchar();
+				fgets(novaVrijednost, 100, stdin);
+				*(poljeArtikala + i)->vrijednostPrveSpecifikacije = novaVrijednost;
+			}
 			fwrite((poljeArtikala + i), sizeof(ARTIKL), 1, fp);
-			noviBrojacArtikala++;
 		}
 	}
 	rewind(fp);
-	fwrite(&brojArtikala, sizeof(int), 1, fp);
 
 	printf("Artikl uspjesno obrisan");
 	*trazeniArtikl = NULL;
