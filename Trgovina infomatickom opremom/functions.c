@@ -8,12 +8,13 @@
 
 static int brojArtikala = 0;
 static int brojKategorija = 0;
+static int brojacPronadenihArtikala = 0;
 
 void meni() {
 	int n = 0;
 	static ARTIKL* poljeArtikala = NULL;
 	static KATEGORIJE* poljeKategorija = NULL;
-	static ARTIKL* pronadeniArtikl = NULL;
+	static ARTIKL* pronadeniArtikli = NULL;
 
 	FILE* fp = NULL;
 
@@ -111,18 +112,20 @@ void meni() {
 		if (poljeKategorija == NULL)
 			exit(EXIT_FAILURE);
 
-		pronadeniArtikl = (ARTIKL*)pretrazivanjeArtikala(poljeArtikala);
-		
-		for (int j = 0; j < brojKategorija; j++) {
-			if (((pronadeniArtikl)->brojKategorije) == ((poljeKategorija + j)->id)) {
+		pronadeniArtikli = (ARTIKL*)pretrazivanjeArtikala(poljeArtikala);
+	
+		for (int i = 0; i < brojacPronadenihArtikala; i++) {
+			for (int j = 0; j < brojKategorija; j++) {
+			if (((pronadeniArtikli + i)->brojKategorije) == ((poljeKategorija + j)->id)) {
 				printf("\n%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
-					1, ((pronadeniArtikl)->imeArtikla), (pronadeniArtikl)->cijena
-					, (pronadeniArtikl)->kolicina, (poljeKategorija + j)->imeKategorije
-					, (poljeKategorija + j)->imePrveSpecifikacije, (pronadeniArtikl)->vrijednostPrveSpecifikacije
-					, (poljeKategorija + j)->imeDrugeSpecifikacije, (pronadeniArtikl)->vrijednostDrugeSpecifikacije
-					, (poljeKategorija + j)->imeTreceSpecifikacije, (pronadeniArtikl)->vrijednostTreceSpecifikacije
-					, (poljeKategorija + j)->imeCetvrteSpecifikacije, (pronadeniArtikl)->vrijednostCetvrteSpecifikacije);
+					i + 1, ((pronadeniArtikli + i)->imeArtikla), (pronadeniArtikli + i)->cijena
+					, (pronadeniArtikli + i)->kolicina, (poljeKategorija + i)->imeKategorije
+					, (poljeKategorija + j)->imePrveSpecifikacije, (pronadeniArtikli + i)->vrijednostPrveSpecifikacije
+					, (poljeKategorija + j)->imeDrugeSpecifikacije, (pronadeniArtikli + i)->vrijednostDrugeSpecifikacije
+					, (poljeKategorija + j)->imeTreceSpecifikacije, (pronadeniArtikli + i)->vrijednostTreceSpecifikacije
+					, (poljeKategorija + j)->imeCetvrteSpecifikacije, (pronadeniArtikli + i)->vrijednostCetvrteSpecifikacije);
 			}
+		}
 		}
 		  break;
 
@@ -230,16 +233,13 @@ int unosNovogArtikla() {
 	scanf("%d", &noviArtikl.kolicina);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imePrveSpecifikacije));
 	getchar();
-	scanf("%100[^\n]", noviArtikl.vrijednostPrveSpecifikacije);
+	fgets(noviArtikl.vrijednostPrveSpecifikacije, 100, stdin);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeDrugeSpecifikacije));
-	getchar();
-	scanf("%100[^\n]", noviArtikl.vrijednostDrugeSpecifikacije);
+	fgets(noviArtikl.vrijednostDrugeSpecifikacije, 100, stdin);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeTreceSpecifikacije));
-	getchar();
-	scanf("%100[^\n]", noviArtikl.vrijednostTreceSpecifikacije);
+	fgets(noviArtikl.vrijednostTreceSpecifikacije, 100, stdin);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeCetvrteSpecifikacije));
-	getchar();
-	scanf("%100[^\n]", noviArtikl.vrijednostCetvrteSpecifikacije);
+	fgets(noviArtikl.vrijednostCetvrteSpecifikacije, 100, stdin);
 	noviArtikl.brojKategorije = (odabir - 1);
 	
 	printf("%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
@@ -404,22 +404,30 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala) {
 			return NULL;
 	}
 	char trazeniPodatak[101] = {'\0'};
-	char dodavanje[2] = {'\n' };
+	//int brojac = 0;
+	int f = 0;
+	ARTIKL* poljePronalazaka = (ARTIKL*)calloc(brojArtikala, sizeof(ARTIKL));
 
+	
 	printf("Unesite trazeni podatak za pronalazak artikala: ");
 	getchar();
-	scanf("%100[^\n]", trazeniPodatak);
-	strcat(trazeniPodatak, dodavanje);
+	fgets(trazeniPodatak, 100, stdin);
 	
-	
-	printf("  %s", (poljeArtikala + 0)->imeArtikla);
+	printf("  %s", (poljeArtikala + 0)->vrijednostDrugeSpecifikacije);
 	for (int i = 0; i < brojArtikala; i++)
 	{
-		if (strcmp((poljeArtikala + i)->imeArtikla, trazeniPodatak) == 0) {
-			printf("Artikl koji se slaze sa kriterijem uspjesno pronaden!");
-			return (poljeArtikala + i);
+		if (strcmp((poljeArtikala + i)->vrijednostDrugeSpecifikacije, trazeniPodatak) == 0) {
+			poljePronalazaka[brojacPronadenihArtikala] = poljeArtikala[i];
+			brojacPronadenihArtikala++;
+			f = 1;
 		}
 	}
+	if (f == 1)
+	{
+		printf("Trazeni podatak pronaden! ");
+		return poljePronalazaka;
+	}
+
 	printf("Trazeni podatak ne postoji!\n");
 	return NULL;
 }
