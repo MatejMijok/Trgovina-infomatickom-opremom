@@ -24,11 +24,12 @@ void meni() {
 	printf("3. Ispisivanje unesenih artikala\n");
 	printf("4. Ispisivanje unesenih kategorija sa specifikacijama\n");
 	printf("5. Pretrazivanje artikala\n");
+	printf("6. Brisanje artikla");
 	printf("\n\n");
 	do {
 		printf("Unesite broj zeljene radnje programa: ");
 		scanf("%d", &n);
-	}while (n < 0 || n>5);
+	}while (n < 0 || n>6);
 	
 
 	switch (n) {
@@ -125,18 +126,24 @@ void meni() {
 					, (poljeKategorija + j)->imeDrugeSpecifikacije, (pronadeniArtikli + i)->vrijednostDrugeSpecifikacije
 					, (poljeKategorija + j)->imeTreceSpecifikacije, (pronadeniArtikli + i)->vrijednostTreceSpecifikacije
 					, (poljeKategorija + j)->imeCetvrteSpecifikacije, (pronadeniArtikli + i)->vrijednostCetvrteSpecifikacije);
+				}
 			}
 		}
-		}
 		  break;
+	case 6: 
+		brisanjeArtikala(pronadeniArtikli, poljeArtikala);
+		break;
 
 	}
 
 	} while (n != 0);
-
+	free(poljeArtikala);
+	free(poljeKategorija);
+	free(pronadeniArtikli);
+	fclose(fp);
 	fp = NULL;
 
-	//return 0;
+	return 0;
 }
 	
 void kreiranjeDatoteke(char imeDatoteke[101]) {
@@ -224,6 +231,7 @@ int unosNovogArtikla() {
 	printf("\nBroj artikala %d\n", brojArtikala);
 	noviArtikl.id = brojArtikala;
 	printf("Unesite ime artikla: ");
+	getchar();
 	fgets(noviArtikl.imeArtikla, 100, stdin);
 	printf("Unesite cijenu artikla: ");
 	scanf("%f", &noviArtikl.cijena);
@@ -240,8 +248,8 @@ int unosNovogArtikla() {
 	fgets(noviArtikl.vrijednostCetvrteSpecifikacije, 100, stdin);
 	noviArtikl.brojKategorije = (odabir - 1);
 	
-	printf("%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
-		0, ((noviArtikl).imeArtikla), (noviArtikl).cijena
+	printf("%d. artikl: %s\n ID: %d\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
+		1,((noviArtikl).imeArtikla), noviArtikl.id ,(noviArtikl).cijena
 		, (noviArtikl).kolicina, (poljeKategorija + (odabir - 1))->imeKategorije
 		, (poljeKategorija + (odabir - 1))->imePrveSpecifikacije, (noviArtikl).vrijednostPrveSpecifikacije
 		, (poljeKategorija + (odabir - 1))->imeDrugeSpecifikacije, (noviArtikl).vrijednostDrugeSpecifikacije
@@ -450,13 +458,13 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala, KATEGORIJE* const polje
 		}
 	}
 	do {
-	printf("\nOdaberite broj pored specifikacije koju pretrazujete:\n ");
+	printf("\nOdaberite broj pored specifikacije koju pretrazujete: \n");
 	printf("\n1. po imenu.");
 	printf("\n2. specifikacija: %s", (poljeKategorija + trazenaKategorija)->imePrveSpecifikacije);
 	printf("\n3. specifikacija: %s", (poljeKategorija + trazenaKategorija)->imeDrugeSpecifikacije);
 	printf("\n4. specifikacija: %s", (poljeKategorija + trazenaKategorija)->imeTreceSpecifikacije);
 	printf("\n5. specifikacija: %s", (poljeKategorija + trazenaKategorija)->imeCetvrteSpecifikacije);
-	printf("\n6. po cijeni.\n");
+	printf("\n6. po cijeni.");
 	printf("\n7. po ID.\n");
 	printf("Vas odabir: ");
 	scanf("%d", &odabir);
@@ -468,6 +476,7 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala, KATEGORIJE* const polje
 		if (odabir == 1)
 		{
 		printf("Unesite ime artikla koje zelite pretraziti: ");
+		getchar();
 		fgets(trazeniPodatak, 100, stdin);
 			if (strcmp(trazeniPodatak, (poljeArtikala + i)->imeArtikla) == 0)
 			{
@@ -557,4 +566,75 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala, KATEGORIJE* const polje
 
 	printf("Trazeni podatak ne postoji!\n");
 	return NULL;
+}
+
+void brisanjeArtikala(ARTIKL** const trazeniArtikl, const ARTIKL* const poljeArtikala) {
+	if (trazeniArtikl == NULL)
+	{
+		printf("Polje artikala je prazno! Ako zelite obrisati artikl odaberite ga pomocu opcije za pretrazivanje koristenjem ID-ja!");
+		return NULL;
+	}
+	FILE* fp = fopen("artikli.bin", "wb");
+	if (fp == NULL)
+	{
+		perror("Brisanje artikala iz datoteke artikli.bin");
+	}
+	fseek(fp, sizeof(int), SEEK_SET);
+	int noviBrojacArtikala = 0;
+
+	for (int i = 0; i < brojArtikala; i++) {
+		if (trazeniArtikl[0] != (poljeArtikala + i)) {
+			fwrite((poljeArtikala + i), sizeof(ARTIKL), 1, fp);
+			noviBrojacArtikala++;
+		}
+	}
+	rewind(fp);
+	fwrite(&noviBrojacArtikala, sizeof(int), 1, fp);
+
+	printf("Artikl uspjesno obrisan");
+	*trazeniArtikl = NULL;
+}
+
+void azuriranjeArtikla(ARTIKL** const trazeniArtikl, const ARTIKL* const poljeArtikala, KATEGORIJE* const poljeKategorija) {
+	ARTIKL* azuriraniArtikl = NULL;
+	int odabir = 0;
+	if (trazeniArtikl == NULL)
+	{
+		printf("Polje artikala je prazno! Ako zelite azurirati artikl odaberite ga pomocu opcije za pretrazivanje koristenjem ID-ja!");
+		return NULL;
+	}
+	FILE* fp = fopen("artikli.bin", "wb");
+	if (fp == NULL)
+	{
+		perror("Brisanje artikala iz datoteke artikli.bin");
+	}
+	fseek(fp, sizeof(int), SEEK_SET);
+	int noviBrojacArtikala = 0;
+
+	do {
+	printf("Odaberite sto zelite azurirati u datoteci: ");
+
+	printf("\n1. %s\n", (poljeKategorija + trazeniArtikl[0]->brojKategorije)->imePrveSpecifikacije);
+	printf("\n2. %s\n", (poljeKategorija + trazeniArtikl[0]->brojKategorije)->imeDrugeSpecifikacije);
+	printf("\n3. %s\n", (poljeKategorija + trazeniArtikl[0]->brojKategorije)->imeTreceSpecifikacije);
+	printf("\n4. %s\n", (poljeKategorija + trazeniArtikl[0]->brojKategorije)->imeCetvrteSpecifikacije);
+	printf("\n5. ime \n");
+	printf("\n6. cijenu\n");
+
+	scanf("%d", &odabir);
+	} while (odabir < 1 || odabir > 6);
+	
+
+
+	for (int i = 0; i < brojArtikala; i++) {
+		if (trazeniArtikl[0] == (poljeArtikala + i)) {
+			fwrite((poljeArtikala + i), sizeof(ARTIKL), 1, fp);
+			noviBrojacArtikala++;
+		}
+	}
+	rewind(fp);
+	fwrite(&brojArtikala, sizeof(int), 1, fp);
+
+	printf("Artikl uspjesno obrisan");
+	*trazeniArtikl = NULL;
 }
