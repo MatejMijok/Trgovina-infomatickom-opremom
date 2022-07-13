@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "Functions.h"
 #include "Structure.h"
 
@@ -12,9 +13,10 @@ void meni() {
 	int n = 0;
 	static ARTIKL* poljeArtikala = NULL;
 	static KATEGORIJE* poljeKategorija = NULL;
-	
+	static ARTIKL* pronadeniArtikl = NULL;
 
 	FILE* fp = NULL;
+
 	do {
 	printf("\n1. Unos novog artikla\n");
 	printf("2. Kreiranje kategorije i specifikacija za uredaj\n");
@@ -89,11 +91,42 @@ void meni() {
 		  ispisivanjeKategorija(poljeKategorija);
 		  break;
 	case 5: 
+
+		if (poljeArtikala != NULL) {
+			free(poljeArtikala);
+			poljeArtikala = NULL;
+		}
+
+		poljeArtikala = (ARTIKL*)ucitavanjeArtikala();
+
+		if (poljeArtikala == NULL)
+			exit(EXIT_FAILURE);
+		
+		if (poljeKategorija != NULL) {
+			free(poljeKategorija);
+			poljeKategorija = NULL;
+		}
+		poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
+
+		if (poljeKategorija == NULL)
+			exit(EXIT_FAILURE);
+
+		pronadeniArtikl = (ARTIKL*)pretrazivanjeArtikala(poljeArtikala);
+		
+		for (int j = 0; j < brojKategorija; j++) {
+			if (((pronadeniArtikl)->brojKategorije) == ((poljeKategorija + j)->id)) {
+				printf("\n%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
+					1, ((pronadeniArtikl)->imeArtikla), (pronadeniArtikl)->cijena
+					, (pronadeniArtikl)->kolicina, (poljeKategorija + j)->imeKategorije
+					, (poljeKategorija + j)->imePrveSpecifikacije, (pronadeniArtikl)->vrijednostPrveSpecifikacije
+					, (poljeKategorija + j)->imeDrugeSpecifikacije, (pronadeniArtikl)->vrijednostDrugeSpecifikacije
+					, (poljeKategorija + j)->imeTreceSpecifikacije, (pronadeniArtikl)->vrijednostTreceSpecifikacije
+					, (poljeKategorija + j)->imeCetvrteSpecifikacije, (pronadeniArtikl)->vrijednostCetvrteSpecifikacije);
+			}
+		}
 		  break;
 
 	}
-
-	
 
 	} while (n != 0);
 
@@ -197,16 +230,16 @@ int unosNovogArtikla() {
 	scanf("%d", &noviArtikl.kolicina);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imePrveSpecifikacije));
 	getchar();
-	fgets(noviArtikl.vrijednostPrveSpecifikacije, 100, stdin);
+	scanf("%100[^\n]", noviArtikl.vrijednostPrveSpecifikacije);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeDrugeSpecifikacije));
-	//getchar();
-	fgets(noviArtikl.vrijednostDrugeSpecifikacije, 100, stdin);
+	getchar();
+	scanf("%100[^\n]", noviArtikl.vrijednostDrugeSpecifikacije);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeTreceSpecifikacije));
-	//getchar();
-	fgets(noviArtikl.vrijednostTreceSpecifikacije, 100, stdin);
+	getchar();
+	scanf("%100[^\n]", noviArtikl.vrijednostTreceSpecifikacije);
 	printf("Unesite vrijednost za %s ", ((poljeKategorija + (odabir - 1))->imeCetvrteSpecifikacije));
-	//getchar();
-	fgets(noviArtikl.vrijednostCetvrteSpecifikacije, 100, stdin);
+	getchar();
+	scanf("%100[^\n]", noviArtikl.vrijednostCetvrteSpecifikacije);
 	noviArtikl.brojKategorije = (odabir - 1);
 	
 	printf("%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
@@ -293,7 +326,7 @@ void* ucitavanjeArtikala() {
 		exit(EXIT_FAILURE);
 	}
 
-	fread(poljeArtikala, sizeof(ARTIKL), 1, fp);
+	fread(poljeArtikala, sizeof(ARTIKL), brojArtikala, fp);
 
 	return poljeArtikala;
 }
@@ -336,7 +369,7 @@ void ispisivanjeArtikala(const ARTIKL* const poljeArtikala, const KATEGORIJE* co
 	for (int i = 0; i < brojArtikala; i++)
 	{
 		for(int j = 0; j<brojKategorija; j++) {
-		//if(((poljeArtikala + i)->brojKategorije) == ((poljeKategorija + j)->id)){
+		if(((poljeArtikala + i)->brojKategorije) == ((poljeKategorija + j)->id)){
 		printf("%d. artikl: %s\n cijena: %0.2f\n kolicina: %d\n kategorija: %s\n %s: %s\n %s: %s\n %s: %s\n %s: %s \n",
 				i+1, ((poljeArtikala + i)->imeArtikla), (poljeArtikala + i)->cijena
 				,(poljeArtikala + i)->kolicina, (poljeKategorija + j)->imeKategorije
@@ -347,10 +380,7 @@ void ispisivanjeArtikala(const ARTIKL* const poljeArtikala, const KATEGORIJE* co
 				}
 			}
 		}
-	//}
-
-
-
+	}
 
 
 void ispisivanjeKategorija(const KATEGORIJE* const poljeKategorija) {
@@ -366,4 +396,30 @@ void ispisivanjeKategorija(const KATEGORIJE* const poljeKategorija) {
 			(poljeKategorija + i)->imeCetvrteSpecifikacije);
 	}
 
+}
+
+void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala) {
+	if (poljeArtikala == NULL) {
+		printf("Polje artikala je prazno!");
+			return NULL;
+	}
+	char trazeniPodatak[101] = {'\0'};
+	char dodavanje[2] = {'\n' };
+
+	printf("Unesite trazeni podatak za pronalazak artikala: ");
+	getchar();
+	scanf("%100[^\n]", trazeniPodatak);
+	strcat(trazeniPodatak, dodavanje);
+	
+	
+	printf("  %s", (poljeArtikala + 0)->imeArtikla);
+	for (int i = 0; i < brojArtikala; i++)
+	{
+		if (strcmp((poljeArtikala + i)->imeArtikla, trazeniPodatak) == 0) {
+			printf("Artikl koji se slaze sa kriterijem uspjesno pronaden!");
+			return (poljeArtikala + i);
+		}
+	}
+	printf("Trazeni podatak ne postoji!\n");
+	return NULL;
 }
