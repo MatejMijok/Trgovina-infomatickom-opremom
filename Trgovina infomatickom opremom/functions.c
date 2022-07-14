@@ -261,7 +261,6 @@ int unosNovogArtikla() {
 	ARTIKL noviArtikl = { 0 };
 	KATEGORIJE* poljeKategorija = NULL;
 	int odabir = 0;
-
 	fp1 = fopen("artikli.bin", "rb+");
 	if (fp1 == NULL && errno == 2)
 	{
@@ -334,7 +333,6 @@ int unosNovogArtikla() {
 		if (poljeKategorija == NULL)
 			exit(EXIT_FAILURE);
 	}
-
 	printf("\nBroj artikala: %d\n", brojArtikala);
 	noviArtikl.id = brojArtikala;
 	printf("Unesite ime artikla: ");
@@ -377,7 +375,6 @@ int unosNovogArtikla() {
 int unosKategorije() {
 	FILE* fp = NULL;
 	KATEGORIJE kategorija = { 0 };
-
 	fp = fopen("kategorije.bin", "rb+");
 	if (fp == NULL && errno == 2)
 	{
@@ -763,7 +760,6 @@ void brisanjeKategorija(const KATEGORIJE* const poljeKategorija) {
 	printf("\nKategorija uspjesno obrisana\n");
 	brojKategorija = noviBrojacKategorija;
 }
-
 
 void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArtikala, const KATEGORIJE* const poljeKategorija) {
 	if (brojKategorija == 0 || brojArtikala == 0) {
