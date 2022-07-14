@@ -25,12 +25,13 @@ void meni() {
 	printf("4. Ispisivanje unesenih kategorija sa specifikacijama\n");
 	printf("5. Pretrazivanje artikala\n");
 	printf("6. Brisanje artikla\n");
-	printf("7. Azuriranje artikala");
+	printf("7. Azuriranje artikala\n");
+	printf("8. Brisanje kategorija\n");
 	printf("\n\n");
 	do {
 		printf("Unesite broj zeljene radnje programa: ");
 		scanf("%d", &n);
-	}while (n < 0 || n>7);
+	}while (n < 0 || n>8);
 
 	switch (n) {
 	case 1: unosNovogArtikla();
@@ -211,6 +212,21 @@ void meni() {
 			azuriranjeArtikla(&pronadeniArtikli[0], poljeArtikala, poljeKategorija);
 
 			break;
+
+	case 8:
+
+		  if (poljeKategorija != NULL) {
+			  free(poljeKategorija);
+			  poljeKategorija = NULL;
+		  }
+
+		  poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
+
+		  if (poljeKategorija == NULL)
+			  printf("Polje kategorija je prazno!");
+
+		  brisanjeKategorija(poljeKategorija);
+		  break;
 
 	}
 
@@ -716,6 +732,39 @@ void brisanjeArtikala(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArti
 	
 }
 
+void brisanjeKategorija(const KATEGORIJE* const poljeKategorija) {
+	FILE* fp = fopen("kategorije.bin", "wb");
+	if (fp == NULL)
+	{
+		perror("Brisanje kategorija iz datoteke artikli.bin");
+	}
+	fseek(fp, sizeof(int), SEEK_SET);
+	int noviBrojacKategorija = 0;
+	int odabir = 0;
+
+	do {
+		for (int i = 0; i < brojKategorija; i++) {
+			printf("%d. ID: %d, Ime kategorije: %s", i ,(poljeKategorija + i)->id, (poljeKategorija + i)->imeKategorije);
+		}
+		printf("Odaberite kategoriju koju zelite izbrisati: ");
+		scanf("%d", &odabir);
+	} while (odabir < 0 || odabir > brojKategorija);
+	
+
+	for (int i = 0; i < brojKategorija; i++) {
+		if (odabir!= (poljeKategorija + i)->id) {
+			fwrite((poljeKategorija + i), sizeof(ARTIKL), 1, fp);
+			noviBrojacKategorija++;
+		}
+	}
+	rewind(fp);
+	fwrite(&noviBrojacKategorija, sizeof(int), 1, fp);
+	fclose(fp);
+	printf("\nKategorija uspjesno obrisana\n");
+	brojKategorija = noviBrojacKategorija;
+}
+
+
 void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArtikala, const KATEGORIJE* const poljeKategorija) {
 	if (brojKategorija == 0 || brojArtikala == 0) {
 		printf("Datoteke koje sadrze kategorije ili artikle su prazne!");
@@ -869,4 +918,5 @@ void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArt
 	fwrite(&brojArtikala, sizeof(int), 1, fp); 
 	fclose(fp);
 	printf("Artikl uspjesno azuriran");
+
 }

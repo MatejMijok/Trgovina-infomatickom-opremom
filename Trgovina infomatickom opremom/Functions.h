@@ -13,5 +13,6 @@ void* ucitavanjeKategorija();
 void ispisivanjeKategorija(const KATEGORIJE* const);
 void* pretrazivanjeArtikala(ARTIKL* const, KATEGORIJE* const);
 void brisanjeArtikala(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArtikala);
+void brisanjeKategorija(const KATEGORIJE* const poljeKategorija);
 void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArtikala, const KATEGORIJE* const poljeKategorija);
 #endif
