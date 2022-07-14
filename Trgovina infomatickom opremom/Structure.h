@@ -4,11 +4,11 @@
 
 typedef struct artikli {
 	int id;
-	char imeArtikla[101];
-	char vrijednostPrveSpecifikacije[101];
-	char vrijednostDrugeSpecifikacije[101];
-	char vrijednostTreceSpecifikacije[101];
-	char vrijednostCetvrteSpecifikacije[101];
+	char imeArtikla[51];
+	char vrijednostPrveSpecifikacije[21];
+	char vrijednostDrugeSpecifikacije[21];
+	char vrijednostTreceSpecifikacije[21];
+	char vrijednostCetvrteSpecifikacije[21];
 	float cijena;
 	int kolicina;
 	int brojKategorije;
@@ -16,11 +16,11 @@ typedef struct artikli {
 
 typedef struct kategorija {
 	int id;
-	char imeKategorije[101];
-	char imePrveSpecifikacije[101];
-	char imeDrugeSpecifikacije[101];
-	char imeTreceSpecifikacije[101];
-	char imeCetvrteSpecifikacije[101];
+	char imeKategorije[51];
+	char imePrveSpecifikacije[51];
+	char imeDrugeSpecifikacije[51];
+	char imeTreceSpecifikacije[51];
+	char imeCetvrteSpecifikacije[51];
 
 }KATEGORIJE;
 

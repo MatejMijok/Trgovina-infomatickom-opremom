@@ -24,7 +24,8 @@ void meni() {
 	printf("3. Ispisivanje unesenih artikala\n");
 	printf("4. Ispisivanje unesenih kategorija sa specifikacijama\n");
 	printf("5. Pretrazivanje artikala\n");
-	printf("6. Brisanje artikla");
+	printf("6. Brisanje artikla\n");
+	printf("7. Azuriranje artikala");
 	printf("\n\n");
 	do {
 		printf("Unesite broj zeljene radnje programa: ");
@@ -182,7 +183,7 @@ void meni() {
 			poljeArtikala = (ARTIKL*)ucitavanjeArtikala();
 
 			if (poljeArtikala == NULL)
-			exit(EXIT_FAILURE);
+				printf("Polje artikala je prazno! Ako zelite azurirati artikl odaberite ga pomocu opcije za pretrazivanje koristenjem ID-ja!");
 
 			if (poljeKategorija != NULL) {
 			free(poljeKategorija);
@@ -201,7 +202,6 @@ void meni() {
 				brojacPronadenihArtikala = 0;
 			}
 
-			printf("Polje artikala je prazno! Ako zelite azurirati artikl odaberite ga pomocu opcije za pretrazivanje koristenjem ID-ja!");
 
 			pronadeniArtikli = (ARTIKL*)pretrazivanjeArtikala(poljeArtikala, poljeKategorija);
 
@@ -274,6 +274,7 @@ int unosNovogArtikla() {
 		free(poljeKategorija);
 		poljeKategorija = NULL;
 	}
+
 	poljeKategorija = (KATEGORIJE*)ucitavanjeKategorija();
 
 	if (poljeKategorija == NULL)
@@ -294,6 +295,7 @@ int unosNovogArtikla() {
 		}
 	}
 
+	do {
 	for (int i = 0; i < brojKategorija; i++)
 	{
 		printf("%d. %s, ID: %d\n",  i + 1, (poljeKategorija + i)->imeKategorije, (poljeKategorija + i)->id);
@@ -301,6 +303,8 @@ int unosNovogArtikla() {
 	printf("%d. Dodavanje nove kategorije.", brojKategorija + 1);
 	printf("\nVas unos: ");
 	scanf("%d", &odabir);
+
+	} while (odabir < 1 || odabir > brojKategorija + 1);
 
 	if (odabir == brojKategorija + 1) {
 		unosKategorije();
@@ -315,7 +319,7 @@ int unosNovogArtikla() {
 			exit(EXIT_FAILURE);
 	}
 
-	printf("\nBroj artikala %d\n", brojArtikala);
+	printf("\nBroj artikala: %d\n", brojArtikala);
 	noviArtikl.id = brojArtikala;
 	printf("Unesite ime artikla: ");
 	getchar();
@@ -497,10 +501,10 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala, KATEGORIJE* const polje
 		return NULL;
 	}
 
-	if (brojArtikala == 1) {
+	/*if (brojArtikala == 1) {
 		printf("Unesite vise od jednog artikla za pretrazivanje!");
 		return NULL;
-	}
+	}*/
 
 	if (poljeArtikala == NULL) {
 		printf("Polje artikala je prazno!");
@@ -526,11 +530,11 @@ void* pretrazivanjeArtikala(ARTIKL* const poljeArtikala, KATEGORIJE* const polje
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Odaberite broj kategorije koju zelite pretraziti:\n ");
+	printf("Odaberite broj kategorije koju zelite pretraziti: \n ");
 
 	for (int i = 0; i < brojKategorija; i++)
 	{
-		printf("%d. %s\t ID: %d\n", i + 1, (poljeKategorija + i)->imeKategorije, (poljeKategorija + i)->id);
+		printf("%d. %s\t ID: %d\n",i + 1, (poljeKategorija + i)->imeKategorije, (poljeKategorija + i)->id);
 	}
 
 	printf("\nVas unos: ");
@@ -731,9 +735,7 @@ void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArt
 	fseek(fp, sizeof(int), SEEK_SET);
 	int noviBrojacArtikala = 0;
 
-	do {
-	printf("Odaberite sto zelite azurirati u datoteci: ");
-
+	do {	
 	printf("\n1. %s\n", (poljeKategorija + (trazeniArtikl[0].brojKategorije))->imePrveSpecifikacije);
 	printf("\n2. %s\n", (poljeKategorija + (trazeniArtikl[0].brojKategorije))->imeDrugeSpecifikacije);
 	printf("\n3. %s\n", (poljeKategorija + (trazeniArtikl[0].brojKategorije))->imeTreceSpecifikacije);
@@ -742,6 +744,7 @@ void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArt
 	printf("\n6. cijenu\n");
 	printf("\n7. kolicinu\n");
 
+	printf("Odaberite sto zelite azurirati u datoteci: ");
 	scanf("%d", &odabir);
 	} while (odabir < 1 || odabir > 6);
 	
@@ -755,7 +758,6 @@ void azuriranjeArtikla(ARTIKL* const trazeniArtikl, const ARTIKL* const poljeArt
 			}
 			else {
 				azuriraniArtikl = *(poljeArtikala + i);
-				//printf("%s %s %s %s", azuriraniArtikl.vrijednostPrveSpecifikacije, azuriraniArtikl.vrijednostDrugeSpecifikacije, azuriraniArtikl.vrijednostTreceSpecifikacije, azuriraniArtikl.vrijednostCetvrteSpecifikacije);
 				printf("Unesite novu vrijednost koju zelite promijeniti: ");
 				getchar();
 				fgets(azuriraniArtikl.vrijednostPrveSpecifikacije, 100, stdin);
